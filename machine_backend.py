@@ -1,17 +1,23 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 from scipy import stats
 import pandas as pd
+import seaborn as sns
 
 ##### CONFIGURATION #####
 
 filename = "data.csv"
+# Diagnosis is column 1
 class_column = 1 # column of the Y
-attribute_start = 22 # column of the first attribute
-attribute_end = 32 # column of the last attribute
-n_pca_to_use = 2 # number of PCAs to plot
+# From 2 to 12 mean
+# From 13 to 22 standard error
+# From 23 to 32 worst
+attribute_start = 2 # column of the first attribute
+attribute_end = 12 # column of the last attribute
+n_pca_to_use = 4 # number of PCAs to plot
 observation_limit = 0 # 0 = no limit
-plot_correlation = False # plot correlation between attributes
+plot_correlation = False # plot correlation between attributes or not (may be really big)
 
 #########################
 
@@ -93,12 +99,15 @@ summary_df.to_csv('summary.csv')
 #! # Correlation between attributes #################
 #! #################################################
 # Compute and plot pairwise correlation coefficients
-plt.figure()
-plt.imshow(np.corrcoef(X.T), cmap='gray')
-plt.colorbar()
-plt.xticks(range(M), attributeNames, rotation=90)
-plt.yticks(range(M), attributeNames)
+corr_matrix = np.corrcoef(X.T)
+plt.figure(figsize=(10, 8))  # Adjust the figure size as needed
+
+# Create a heatmap with values displayed on each square
+sns.heatmap(corr_matrix, cmap='seismic', annot=True, fmt=".2f", cbar=True, square=True,
+            xticklabels=attributeNames, yticklabels=attributeNames)
+
 plt.title('Correlation matrix of attributes')
+plt.xticks(rotation=90)
 plt.tight_layout()
 plt.show()
 
@@ -113,13 +122,13 @@ V = V.T
 #! # Violin plot of the attributes ##################
 #! #################################################
 
-# violin plot of attributes with class labels as hue (color)
-import seaborn as sns
+colors = [ '#D64040',"#40D640"]
 plt.figure()
 df = pd.DataFrame(X, columns=attributeNames)
 df['Diagnostic'] = classLabels
 df_long = pd.melt(df, id_vars=['Diagnostic'], var_name='attributes', value_name='values')
-sns.violinplot(x="attributes", y="values", hue="Diagnostic", data=df_long, split=True, inner="quart")
+custom_palette = sns.color_palette(colors)
+sns.violinplot(x="attributes", y="values", hue="Diagnostic", data=df_long, split=True, inner="quart", palette=custom_palette)
 plt.xticks(rotation=90)
 plt.tight_layout()
 plt.show()
@@ -155,9 +164,12 @@ j = 1
 f = plt.figure()
 plt.title('data: PCA')
 #Z = array(Z)
+custom_colors = ["#D64040", "#40D640", "#4040D6", "#D69040", "#D6D640", "#D640A0", "#A040D6"]
+
+colors = ["#40D640", '#D64040']
 for c in range(C):
     class_mask = y==c
-    plt.plot(Z[class_mask,i], Z[class_mask,j], 'o', alpha=0.5)
+    plt.plot(Z[class_mask,i], Z[class_mask,j], 'o', alpha=0.5, color=colors[c], markersize=7, markeredgecolor='k', markeredgewidth=0.8)
 plt.legend(classNames)
 plt.xlabel('PC{0}'.format(i+1))
 plt.ylabel('PC{0}'.format(j+1))
@@ -175,14 +187,14 @@ n_pca_to_use = min(n_pca_to_use, V.shape[1])
 pcs = range(n_pca_to_use)
 legendStrs = [f'PC{str(e + 1)}' for e in pcs]
 bw = .2
+plt.grid(zorder=0)
 r = np.arange(1,M+1)
 for i in pcs:    
-    plt.bar(r+i*bw, V[:,i], width=bw)
+    plt.bar(r+i*bw, V[:,i], width=bw, zorder=3)
 plt.xticks(r+bw, attributeNames, rotation=90)
 plt.xlabel('Attributes')
 plt.ylabel('Component coefficients')
 plt.legend(legendStrs)
-plt.grid()
 plt.title(' PCA Component Coefficients')
 plt.tight_layout()
 plt.show()
