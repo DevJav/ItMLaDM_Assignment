@@ -103,7 +103,7 @@ corr_matrix = np.corrcoef(X.T)
 plt.figure(figsize=(10, 8))  # Adjust the figure size as needed
 
 # Create a heatmap with values displayed on each square
-sns.heatmap(corr_matrix, cmap='seismic', annot=True, fmt=".2f", cbar=True, square=True,
+sns.heatmap(corr_matrix, cmap=sns.diverging_palette(20, 220, n=256), annot=True, fmt=".2f", cbar=True, square=True,
             xticklabels=attributeNames, yticklabels=attributeNames)
 
 plt.title('Correlation matrix of attributes')
@@ -113,6 +113,29 @@ plt.show()
 
 #! Standardize the data
 X = stats.zscore(X)
+
+sns.violinplot(data=X, palette="Set3")
+plt.title('Violin Plot of the Attributes')
+plt.xlabel('Attributes')
+plt.ylabel('Values')
+plt.xticks(range(len(attributeNames)), attributeNames, rotation=90)
+plt.xticks(rotation=90)
+plt.tight_layout()
+plt.show()
+
+# Assuming data contains your dataset and attributeNames contains the attribute names
+sns.set(style="whitegrid")  # Set the style of the plot
+
+# Create a swarm plot
+ax = sns.stripplot(data=X, palette="Set3", jitter=True, size=5, edgecolor='black', linewidth=1)
+
+# Set labels and title
+ax.set(xlabel='Attributes', ylabel='Values', title='Swarm Plot of Attributes')
+
+# Rotate the x-axis labels for better readability
+plt.xticks(rotation=90)
+
+plt.show()
 
 #! PCA by computing SVD of X
 U,S,V = np.linalg.svd(X,full_matrices=False)
@@ -179,6 +202,27 @@ plt.axis('equal')
 plt.tight_layout()
 plt.show()
 
+#! #################################################
+#! ######## Pairplot of first 4 PCAs ###############
+#! #################################################
+# Combine the PCs and the target variable into a DataFrame
+df = pd.DataFrame({'PC1': Z[:, 0], 'PC2': Z[:, 1], 'PC3': Z[:, 2], 'PC4': Z[:, 3], 'Target': y})
+
+# Define custom colors for your target classes (0 for benign, 1 for malign)
+colors = {"#40D640", "#D64040"}
+
+# Create a pairplot with colored data points based on the 'Target' column
+sns.set(style="ticks")
+pairplot = sns.pairplot(df, hue='Target', kind="scatter", palette=colors, markers=["o", "o"], hue_order=[0, 1],
+                        plot_kws=dict(size=0.5,edgecolor="black", linewidth=0.5, alpha=0.5))
+
+# Customize the legend labels
+legend_labels = {'B': 'Benign', 'M': 'Malign'}
+for text, label in zip(pairplot._legend.texts, legend_labels.values()):
+    text.set_text(label)
+
+plt.tight_layout()
+plt.show()
 #! #################################################
 #! ############# PCAs coefficients #################
 #! #################################################
