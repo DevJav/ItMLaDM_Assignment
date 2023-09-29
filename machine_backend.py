@@ -209,13 +209,12 @@ plt.show()
 df = pd.DataFrame({'PC1': Z[:, 0], 'PC2': Z[:, 1], 'PC3': Z[:, 2], 'PC4': Z[:, 3], 'Target': y})
 
 # Define custom colors for your target classes (0 for benign, 1 for malign)
-colors = {"#40D640", "#D64040"}
+colors = {0: "#40D640", 1: "#D64040"}
 
 # Create a pairplot with colored data points based on the 'Target' column
 sns.set(style="ticks")
 pairplot = sns.pairplot(df, hue='Target', kind="scatter", palette=colors, markers=["o", "o"], hue_order=[0, 1],
-                        plot_kws=dict(size=0.5,edgecolor="black", linewidth=0.5, alpha=0.5))
-
+                        plot_kws=dict(s=20,edgecolor="black", linewidth=0.5, alpha=0.5))
 # Customize the legend labels
 legend_labels = {'B': 'Benign', 'M': 'Malign'}
 for text, label in zip(pairplot._legend.texts, legend_labels.values()):
@@ -235,7 +234,7 @@ plt.grid(zorder=0)
 r = np.arange(1,M+1)
 for i in pcs:    
     plt.bar(r+i*bw, V[:,i], width=bw, zorder=3)
-plt.xticks(r+bw, attributeNames, rotation=90)
+plt.xticks(r+bw, attributeNames, rotation=90, fontsize=10)
 plt.xlabel('Attributes')
 plt.ylabel('Component coefficients')
 plt.legend(legendStrs)
