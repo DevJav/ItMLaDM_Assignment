@@ -39,30 +39,11 @@ print('\nOverall misclassification rate: {0:.3f}'.format(misclass_rate))
 
 f = figure()
 benign_ids = np.nonzero(y=='B')[0].tolist()
-plot(benign_ids, y_est_white_prob[benign_ids], 'og', markersize=5, markeredgecolor='k', markeredgewidth=0.8, alpha=.82
-
-
-
-
-
-
-
-
-/////)
+plot(benign_ids, y_est_white_prob[benign_ids], 'og', markersize=5, markeredgecolor='k', markeredgewidth=0.8, alpha=.82)
 malign_ids = np.nonzero(y=='M')[0].tolist()
-plot(malign_ids, y_est_white_prob[malign_ids], 'or', markersize=5, markeredgecolor='k', markeredgewidth=0.8, alpha=.82
-
-
-
-
-
-
-
-
-/////)
+plot(malign_ids, y_est_white_prob[malign_ids], 'or', markersize=5, markeredgecolor='k', markeredgewidth=0.8, alpha=.82)
 xlabel('Data object'); ylabel('Predicted prob. of class Malign')
 legend(['Malign', 'Benign'])
 ylim(-0.01,1.5)
 
 show()
-*
