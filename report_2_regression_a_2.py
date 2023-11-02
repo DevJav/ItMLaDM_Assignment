@@ -2,9 +2,6 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.io import loadmat
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
 import pandas as pd
 from sklearn import model_selection
 from matplotlib.pylab import (figure, semilogx, loglog, xlabel, ylabel, legend, 
