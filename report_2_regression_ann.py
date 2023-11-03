@@ -14,9 +14,9 @@ from scipy import stats
 filename = "data_mean_10.csv"
 df = pd.read_csv(filename)
 raw_data = df.values
-cols = np.r_[1:8]
+cols = np.r_[1:9, 10:12]
 X = raw_data[:, cols]
-y = raw_data[:, [8]]
+y = raw_data[:, [9]]
 attributeNames = np.asarray(df.columns[cols])
 print(attributeNames)
 
@@ -25,9 +25,9 @@ N, M = X.shape
 # Normalize data
 X = stats.zscore(X)
 
-possible_hs = [1, 2, 3, 4, 5]
+possible_hs = [1, 3, 5, 10]
 n_replicates = 3
-max_iter = 1000
+max_iter = 10000
 
 # K-fold crossvalidation
 K = 10

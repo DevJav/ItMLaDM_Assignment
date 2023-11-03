@@ -16,9 +16,9 @@ plt.rcParams.update({'font.size': font_size})
 filename = "data_mean_10.csv"
 df = pd.read_csv(filename)
 raw_data = df.values
-cols = np.r_[3:11]
+cols = np.r_[1:9, 10:12]
 X = raw_data[:, cols]
-y = raw_data[:, [2]]
+y = raw_data[:, [9]]
 attributeNames = list(np.asarray(df.columns[cols]))
 N, M = X.shape
 print(attributeNames)
@@ -32,8 +32,8 @@ M = M+1
 
 K = 10
 
-lambdas = np.power(10.,range(-5,8))
-lambdas = np.logspace(-1.5, 5, 50)
+lambdas = np.power(10.,range(-2,2))
+lambdas = np.logspace(-3, 5, 50)
 
 opt_val_err, opt_lambda, mean_w_vs_lambda, train_err_vs_lambda, test_err_vs_lambda = rlr_validate(X, y, lambdas, K)
 
@@ -66,13 +66,13 @@ for train_index, test_index in CV.split(X,y):
     lambdaI[0,0] = 0 # remove bias regularization
     w = np.linalg.solve(XtX+lambdaI,Xty).squeeze()
     predicted_y = X_test @ w
-    print("Test error: ", np.square(y_test - predicted_y).sum()/y_test.shape[0])
+    # print("Test error: ", np.square(y_test.squeeze() - predicted_y).sum()/y_test.shape[0])        
 
-plt.figure(figsize=(12,8))
-plt.plot(y_test, 'o-', label='True value')
-plt.plot(predicted_y, 'x-', label='Predicted value')
-plt.xlabel('Index')
-plt.ylabel('Value')
-plt.title('Test data: True and predicted value')
-plt.legend()
-plt.show()
+# plt.figure(figsize=(12,8))
+# plt.plot(y_test, 'o-', label='True value')
+# plt.plot(predicted_y, 'x-', label='Predicted value')
+# plt.xlabel('Index')
+# plt.ylabel('Value')
+# plt.title('Test data: True and predicted value')
+# plt.legend()
+# plt.show()
