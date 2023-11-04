@@ -166,12 +166,12 @@ for i, (train_index_out, test_index_out) in enumerate(CV.split(X,y)):
     
     y_test_est = net(X_test_ann)
 
-    plt.figure(figsize=(12,8))
-    plt.plot(y_test_ann, 'o-', label='True value')
-    plt.plot(y_test_est.float().data.numpy(), 'x-', label='Predicted value')
+    plt.figure(figsize=(10,6))
+    plt.plot(y_test_ann, 'ro-', label='True value')
+    plt.plot(y_test_est.float().data.numpy(), 'gx-', label='Predicted value')
     plt.xlabel('Index')
     plt.ylabel('Value')
-    plt.title('Test data: True and predicted value')
+    plt.title('ANN: True and predicted value')
     plt.legend()
     plt.show()
 
@@ -190,26 +190,28 @@ print(tabulate(resume, headers=['Fold', 'Best h', 'ANN error', 'Best lambda', 'L
 #! PAIRED T-TEST ################
 #!##############################
 
+alpha = 0.05
 #! Linear regression vs ANN
+z = []
 for i in range(K):
-    alpha = 0.05
-    z = zLinearRegression[i] - zANN[i].squeeze()
-    CI = st.t.interval(1-alpha, len(z)-1, loc=np.mean(z), scale=st.sem(z))  # Confidence interval
-    p = 2*st.t.cdf( -np.abs( np.mean(z) )/st.sem(z), df=len(z)-1)  # p-value
-    print(f'Linear regression vs ANN: p={p:.10f}, CI=({CI[0]:.7f},{CI[1]:.7f})')
+    z.extend(zLinearRegression[i] - zANN[i].squeeze())
+
+CI = st.t.interval(1-alpha, len(z)-1, loc=np.mean(z), scale=st.sem(z))  # Confidence interval
+p = 2*st.t.cdf( -np.abs( np.mean(z) )/st.sem(z), df=len(z)-1)  # p-value
+print(f'Linear regression vs ANN: p={p:.20f}, CI=({CI[0]:.7f},{CI[1]:.7f})')
 
 #! Linear regression vs Baseline
+z = []
 for i in range(K):
-    alpha = 0.05
-    z = zLinearRegression[i] - zBaseline[i].squeeze()
-    CI = st.t.interval(1-alpha, len(z)-1, loc=np.mean(z), scale=st.sem(z))  # Confidence interval
-    p = 2*st.t.cdf( -np.abs( np.mean(z) )/st.sem(z), df=len(z)-1)  # p-value
-    print(f'Linear regression vs Baseline: p={p:.10f}, CI=({CI[0]:.7f},{CI[1]:.7f})')
+    z.extend(zLinearRegression[i] - zBaseline[i].squeeze())
+CI = st.t.interval(1-alpha, len(z)-1, loc=np.mean(z), scale=st.sem(z))  # Confidence interval
+p = 2*st.t.cdf( -np.abs( np.mean(z) )/st.sem(z), df=len(z)-1)  # p-value
+print(f'Linear regression vs Baseline: p={p:.20f}, CI=({CI[0]:.7f},{CI[1]:.7f})')
 
 #! ANN vs Baseline
+z = []
 for i in range(K):
-    alpha = 0.05
-    z = zANN[i].squeeze() - zBaseline[i].squeeze()
-    CI = st.t.interval(1-alpha, len(z)-1, loc=np.mean(z), scale=st.sem(z))  # Confidence interval
-    p = 2*st.t.cdf( -np.abs( np.mean(z) )/st.sem(z), df=len(z)-1)  # p-value
-    print(f'ANN vs Baseline: p={p:.10f}, CI=({CI[0]:.7f},{CI[1]:.7f})')
+    z.extend(zANN[i].squeeze() - zBaseline[i].squeeze())
+CI = st.t.interval(1-alpha, len(z)-1, loc=np.mean(z), scale=st.sem(z))  # Confidence interval
+p = 2*st.t.cdf( -np.abs( np.mean(z) )/st.sem(z), df=len(z)-1)  # p-value
+print(f'ANN vs Baseline: p={p:.20f}, CI=({CI[0]:.7f},{CI[1]:.7f})')
