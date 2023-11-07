@@ -1,13 +1,14 @@
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 from sklearn import model_selection
 from tabulate import tabulate
-import numpy as np, scipy.stats as st
 from sklearn.linear_model import LogisticRegression
 from sklearn import tree
 from sklearn import metrics
 from toolbox_02450 import mcnemar
+from scipy import stats
 
 filename = "data_mean_10.csv"
 df = pd.read_csv(filename)
@@ -25,12 +26,15 @@ y = np.array([classDict[cl] for cl in classLabels])
 N, M = X.shape
 C = len(classNames)
 
-# Logistic Regression parameters
-lambda_interval = np.logspace(-5, 3, 50)
+# standardize data
+X = stats.zscore(X)
+
+#! Logistic Regression parameters
+lambda_interval = np.logspace(-2, 3, 50)
 max_iter_param = 1000
 
-# Tree classifier parameters
-min_samples = range(2, 100)
+#! Tree classifier parameters
+min_samples = range(2, 200)
 
 # K-fold crossvalidation
 K = 10
@@ -62,18 +66,31 @@ for i, (train_index_out, test_index_out) in enumerate(CV.split(X,y)):
         #!################################
         best_lambda = 0
         best_performance = float('inf')
+        lambdas_list = []
+        errors_list = []
         for k in range(len(lambda_interval)):
             mdl = LogisticRegression(penalty='l2', C=1/lambda_interval[k], max_iter=max_iter_param)
-            
+
             mdl.fit(X_train, y_train)
 
             y_test_est = mdl.predict(X_test).T
-            
+
             test_error_rate = np.sum(y_test_est != y_test) / len(y_test)
 
-            if test_error_rate < best_performance:
+            lambdas_list.append(lambda_interval[k])
+            errors_list.append(test_error_rate)
+
+            if test_error_rate <= best_performance:
                 best_performance = test_error_rate
                 best_lambda = lambda_interval[k]
+
+        # f = plt.figure()
+        # plt.semilogx(lambdas_list, errors_list, '*-')
+        # plt.xlabel('Regularization factor')
+        # plt.ylabel('Test error rate')
+        # plt.title('Logistic Regression')
+        # plt.grid()
+        # plt.show()
 
         #!##############################
         #!## Classification Tree #######
@@ -87,7 +104,7 @@ for i, (train_index_out, test_index_out) in enumerate(CV.split(X,y)):
             y_test_est = dtc.predict(X_test).T
             test_error_rate = np.sum(y_test_est != y_test) / len(y_test)
 
-            if test_error_rate < min_test_error:
+            if test_error_rate <= min_test_error:
                 min_test_error = test_error_rate
                 best_min_samples = min_samples[k]
 
@@ -96,10 +113,7 @@ for i, (train_index_out, test_index_out) in enumerate(CV.split(X,y)):
     #!##############################
     # find the most common class in current fold
     y_mean = np.mean(y_train_out)
-    if y_mean < 0.5:
-        most_common_class = 0
-    else:
-        most_common_class = 1
+    most_common_class = 0 if y_mean < 0.5 else 1
     y_predicted = np.ones(y_test_out.shape)*most_common_class
     y_predicted_baseline[test_index_out] = y_predicted
 
@@ -107,7 +121,7 @@ for i, (train_index_out, test_index_out) in enumerate(CV.split(X,y)):
     confusion_matrix = metrics.confusion_matrix(y_test_out, y_predicted)
     cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = ["Benign", "Malign"])
     cm_display.plot(cmap=plt.cm.Greens, ax=axes[0])
-    plt.title(f'[Baseline] Confusion matrix for outer fold {i+1}')
+    axes[0].set_title(f'[Baseline] Confusion matrix for outer fold {i+1}')
 
     E_baseline = np.sum(y_predicted != y_test_out) / len(y_test_out)
 
@@ -124,7 +138,8 @@ for i, (train_index_out, test_index_out) in enumerate(CV.split(X,y)):
     confusion_matrix = metrics.confusion_matrix(y_test_out, y_test_est)
     cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = ["Benign", "Malign"])
     cm_display.plot(cmap=plt.cm.Blues, ax=axes[1])
-    plt.title(f'[Logistic] Confusion matrix for outer fold {i+1}')
+    axes[1].set_title(f'[Logistic] Confusion matrix for outer fold {i+1}')
+    axes[1].set_ylabel('')
 
     #!##############################
     #! TRAIN CLASSIFICATION TREE ON OUTER FOLD
@@ -140,13 +155,41 @@ for i, (train_index_out, test_index_out) in enumerate(CV.split(X,y)):
     confusion_matrix = metrics.confusion_matrix(y_test_out, y_test_est)
     cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = ["Benign", "Malign"])
     cm_display.plot(cmap=plt.cm.Reds, ax=axes[2])
-    plt.title(f'[Tree] Confusion matrix for outer fold {i+1}')
+    axes[2].set_title(f'[Tree] Confusion matrix for outer fold {i+1}')
+    axes[1].set_ylabel('')
     plt.show()
 
     resume.append([i, best_lambda, E_logistic, best_min_samples, E_tree, E_baseline])
+    # print this fold's results
+    print(f'Fold {i+1} results:')
+    print(f'    Best lambda: {best_lambda}')
+    print(f'    Logistic error: {E_logistic}')
+    print(f'    Best min_samples: {best_min_samples}')
+    print(f'    Tree error: {E_tree}')
+    print(f'    Baseline error: {E_baseline}')
 
 
 print(tabulate(resume, headers=['Fold', 'Best lambda', 'Logistic error', 'Best min_samples', 'Tree error', 'Baseline error']))
+
+# Full confusion matrix
+f, axes = plt.subplots(1, 3, figsize=(20, 5), sharey='row')
+confusion_matrix = metrics.confusion_matrix(y, y_predicted_baseline)
+cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = ["Benign", "Malign"])
+cm_display.plot(cmap=plt.cm.Greens, ax=axes[0])
+axes[0].set_title(f'[Baseline] Final confusion matrix')
+
+confusion_matrix = metrics.confusion_matrix(y, y_predicted_logistic)
+cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = ["Benign", "Malign"])
+cm_display.plot(cmap=plt.cm.Blues, ax=axes[1])
+axes[1].set_title(f'[Logistic] Final confusion matrix')
+axes[1].set_ylabel('')
+
+confusion_matrix = metrics.confusion_matrix(y, y_predicted_tree)
+cm_display = metrics.ConfusionMatrixDisplay(confusion_matrix = confusion_matrix, display_labels = ["Benign", "Malign"])
+cm_display.plot(cmap=plt.cm.Reds, ax=axes[2])
+axes[2].set_title(f'[Tree] Final confusion matrix')
+axes[2].set_ylabel('')
+plt.show()
 
 #!##############################
 #!##### McNemar's Test #########
@@ -154,10 +197,22 @@ print(tabulate(resume, headers=['Fold', 'Best lambda', 'Logistic error', 'Best m
 
 alpha = 0.05
 [thetahat, CI, p] = mcnemar(y, y_predicted_baseline, y_predicted_logistic, alpha=alpha)
-print(f'Logistic vs Baseline: theta = {thetahat:.10f}, CI = ({CI[0]:.5f}, {CI[1]:.5f}), p = {p:.10f}')
+print(f'Baseline vs Logistic: theta = {thetahat:.10f}, CI = ({CI[0]:.5f}, {CI[1]:.5f}), p = {p:.10f}')
+if thetahat > 0:
+    print('Baseline is better than Logistic')
+else:
+    print('Logistic is better than Baseline')
 
 [thetahat, CI, p] = mcnemar(y, y_predicted_baseline, y_predicted_tree, alpha=alpha)
-print(f'Tree vs Baseline: theta = {thetahat:.10f}, CI = ({CI[0]:.5f}, {CI[1]:.5f}), p = {p:.10f}')
+print(f'Baseline vs Tree: theta = {thetahat:.10f}, CI = ({CI[0]:.5f}, {CI[1]:.5f}), p = {p:.10f}')
+if thetahat > 0:
+    print('Baseline is better than Tree')
+else:
+    print('Tree is better than Baseline')
 
 [thetahat, CI, p] = mcnemar(y, y_predicted_logistic, y_predicted_tree, alpha=alpha)
-print(f'Tree vs Logistic: theta = {thetahat:.10f}, CI = ({CI[0]:.5f}, {CI[1]:.5f}), p = {p:.10f}')
+print(f'Logistic vs Tree: theta = {thetahat:.10f}, CI = ({CI[0]:.5f}, {CI[1]:.5f}), p = {p:.10f}')
+if thetahat > 0:
+    print('Logistic is better than Tree')
+else:
+    print('Tree is better than Logistic')

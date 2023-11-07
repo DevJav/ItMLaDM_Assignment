@@ -31,6 +31,9 @@ y = np.array([classDict[cl] for cl in classLabels])
 N, M = X.shape
 C = len(classNames)
 
+# standardize data
+X = stats.zscore(X)
+
 # Create crossvalidation partition for evaluation
 # using stratification and 95 pct. split between training and test 
 K = 20
@@ -39,12 +42,12 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.9, stratify
 # effect of regularization? How does differetn runs of  test_size=.99 compare 
 # to eachother?
 
-# Standardize the training and set set based on training set mean and std
-mu = np.mean(X_train, 0)
-sigma = np.std(X_train, 0)
+# # Standardize the training and set set based on training set mean and std
+# mu = np.mean(X_train, 0)
+# sigma = np.std(X_train, 0)
 
-X_train = (X_train - mu) / sigma
-X_test = (X_test - mu) / sigma
+# X_train = (X_train - mu) / sigma
+# X_test = (X_test - mu) / sigma
 
 # Fit regularized logistic regression model to training data to predict 
 # the type of wine
