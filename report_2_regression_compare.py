@@ -29,8 +29,7 @@ attributeNames = [u'offset']+list(attributeNames)
 M = M+1
 
 # Linear Regression parameters
-lambdas = np.power(10.,range(-5,8))
-lambdas = np.logspace(-5, 5, 50)
+lambdas = np.logspace(0, 2, 50)
 
 # ANN parameters
 possible_hs = [1, 3, 5, 10]
