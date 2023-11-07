@@ -14,9 +14,9 @@ from scipy import stats
 filename = "data_mean_10.csv"
 df = pd.read_csv(filename)
 raw_data = df.values
-cols = np.r_[1:9, 10:12]
+cols = np.r_[1:8, 9:12]
 X = raw_data[:, cols]
-y = raw_data[:, [9]]
+y = raw_data[:, [8]]
 attributeNames = np.asarray(df.columns[cols])
 print(attributeNames)
 

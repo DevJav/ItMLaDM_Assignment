@@ -2,11 +2,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn import model_selection
-from matplotlib.pylab import (figure, semilogx, loglog, xlabel, ylabel, legend, 
-                           title, subplot, show, grid, plot)
-from toolbox_02450 import rlr_validate, train_neural_net, draw_neural_net
-import torch
-from scipy import stats
 from tabulate import tabulate
 import numpy as np, scipy.stats as st
 from sklearn.linear_model import LogisticRegression
@@ -32,6 +27,7 @@ C = len(classNames)
 
 # Logistic Regression parameters
 lambda_interval = np.logspace(-5, 3, 50)
+max_iter_param = 1000
 
 # Tree classifier parameters
 min_samples = range(2, 100)
@@ -67,7 +63,7 @@ for i, (train_index_out, test_index_out) in enumerate(CV.split(X,y)):
         best_lambda = 0
         best_performance = float('inf')
         for k in range(len(lambda_interval)):
-            mdl = LogisticRegression(penalty='l2', C=1/lambda_interval[k], max_iter=1000)
+            mdl = LogisticRegression(penalty='l2', C=1/lambda_interval[k], max_iter=max_iter_param)
             
             mdl.fit(X_train, y_train)
 
@@ -118,7 +114,7 @@ for i, (train_index_out, test_index_out) in enumerate(CV.split(X,y)):
     #!##############################
     #! TRAIN LOGISTIC REGRESSION ON OUTER FOLD
     #!##############################
-    mdl = LogisticRegression(penalty='l2', C=1/best_lambda, max_iter=1000)
+    mdl = LogisticRegression(penalty='l2', C=1/best_lambda, max_iter=max_iter_param)
     mdl.fit(X_train_out, y_train_out)
     y_test_est = mdl.predict(X_test_out).T
     y_predicted_logistic[test_index_out] = y_test_est
