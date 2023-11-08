@@ -1,4 +1,3 @@
-# exercise 8.1.2
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -12,7 +11,6 @@ from scipy import stats
 font_size = 15
 plt.rcParams.update({'font.size': font_size})
 
-# Load Matlab data file and extract variables of interest
 filename = "data_mean_10.csv"
 df = pd.read_csv(filename)
 raw_data = df.values
@@ -48,6 +46,20 @@ grid()
 subplot(1,2,2)
 title('Optimal lambda: 1e{0}'.format(np.log10(opt_lambda)))
 loglog(lambdas, train_err_vs_lambda.T,'b.-',lambdas, test_err_vs_lambda.T,'r.-')
+xlabel('Regularization factor')
+ylabel('Squared error (crossvalidation)')
+legend(['Train error','Validation error'])
+grid()
+show()
+
+# now just show the curve near the best value opt_lambda:
+best_lambdas_idx = np.where(lambdas==opt_lambda)
+lambdas2 = lambdas[best_lambdas_idx[0][0]-10:best_lambdas_idx[0][0]+10]
+train_err_vs_lambda2 = train_err_vs_lambda[best_lambdas_idx[0][0]-10:best_lambdas_idx[0][0]+10]
+test_err_vs_lambda2 = test_err_vs_lambda[best_lambdas_idx[0][0]-10:best_lambdas_idx[0][0]+10]
+
+title('Optimal lambda: 1e{0}'.format(np.log10(opt_lambda)))
+loglog(lambdas2, train_err_vs_lambda2.T,'b.-',lambdas2, test_err_vs_lambda2.T,'r.-')
 xlabel('Regularization factor')
 ylabel('Squared error (crossvalidation)')
 legend(['Train error','Validation error'])
