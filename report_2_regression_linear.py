@@ -44,7 +44,7 @@ legend(attributeNames[1:], loc='best', fontsize="small")
 grid()
 
 subplot(1,2,2)
-title('Optimal lambda: 1e{0}'.format(np.log10(opt_lambda)))
+title('Optimal lambda: 1e{:.5f}'.format(np.log10(opt_lambda)))
 loglog(lambdas, train_err_vs_lambda.T,'b.-',lambdas, test_err_vs_lambda.T,'r.-')
 xlabel('Regularization factor')
 ylabel('Squared error (crossvalidation)')
@@ -58,7 +58,7 @@ lambdas2 = lambdas[best_lambdas_idx[0][0]-10:best_lambdas_idx[0][0]+10]
 train_err_vs_lambda2 = train_err_vs_lambda[best_lambdas_idx[0][0]-10:best_lambdas_idx[0][0]+10]
 test_err_vs_lambda2 = test_err_vs_lambda[best_lambdas_idx[0][0]-10:best_lambdas_idx[0][0]+10]
 
-title('Optimal lambda: 1e{0}'.format(np.log10(opt_lambda)))
+title('Optimal lambda: 1e{:.5f}'.format(np.log10(opt_lambda)))
 loglog(lambdas2, train_err_vs_lambda2.T,'b.-',lambdas2, test_err_vs_lambda2.T,'r.-')
 xlabel('Regularization factor')
 ylabel('Squared error (crossvalidation)')
