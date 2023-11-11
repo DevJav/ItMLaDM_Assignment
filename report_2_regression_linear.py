@@ -44,7 +44,7 @@ legend(attributeNames[1:], loc='best', fontsize="small")
 grid()
 
 subplot(1,2,2)
-title('Optimal lambda: 1e{:.5f}'.format(np.log10(opt_lambda)))
+title(f'Optimal lambda: {opt_lambda:.3f}')
 loglog(lambdas, train_err_vs_lambda.T,'b.-',lambdas, test_err_vs_lambda.T,'r.-')
 xlabel('Regularization factor')
 ylabel('Squared error (crossvalidation)')
@@ -58,7 +58,7 @@ lambdas2 = lambdas[best_lambdas_idx[0][0]-10:best_lambdas_idx[0][0]+10]
 train_err_vs_lambda2 = train_err_vs_lambda[best_lambdas_idx[0][0]-10:best_lambdas_idx[0][0]+10]
 test_err_vs_lambda2 = test_err_vs_lambda[best_lambdas_idx[0][0]-10:best_lambdas_idx[0][0]+10]
 
-title('Optimal lambda: 1e{:.5f}'.format(np.log10(opt_lambda)))
+title(f'Optimal lambda: {opt_lambda:.3f}')
 loglog(lambdas2, train_err_vs_lambda2.T,'b.-',lambdas2, test_err_vs_lambda2.T,'r.-')
 xlabel('Regularization factor')
 ylabel('Squared error (crossvalidation)')
@@ -66,6 +66,7 @@ legend(['Train error','Validation error'])
 grid()
 show()
 
+w_list = []
 CV = model_selection.KFold(K, shuffle=True)
 for train_index, test_index in CV.split(X,y):
     X_train = X[train_index]
@@ -77,8 +78,12 @@ for train_index, test_index in CV.split(X,y):
     lambdaI = opt_lambda * np.eye(M)
     lambdaI[0,0] = 0 # remove bias regularization
     w = np.linalg.solve(XtX+lambdaI,Xty).squeeze()
+    w_list.append(w)
     predicted_y = X_test @ w
     # print("Test error: ", np.square(y_test.squeeze() - predicted_y).sum()/y_test.shape[0])        
+
+# mean of weights
+w = np.mean(w_list, axis=0)
 
 # plt.figure(figsize=(12,8))
 # plt.plot(y_test, 'o-', label='True value')
