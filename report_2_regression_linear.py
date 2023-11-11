@@ -88,3 +88,15 @@ for train_index, test_index in CV.split(X,y):
 # plt.title('Test data: True and predicted value')
 # plt.legend()
 # plt.show()
+
+# bar plot of weights
+plt.figure(figsize=(12,8))
+# pastel color palette
+color_list = ['#FF6666', '#FFCC66', '#CCFF66', '#66FF66', '#66FFCC', '#66FFFF', '#66CCFF', '#6666FF', '#CC66FF', '#FF66FF']
+plt.grid(zorder=0)
+plt.bar(np.arange(len(w[1:])), w[1:], color=color_list, zorder=3)
+plt.xticks(np.arange(len(w[1:])), attributeNames[1:], rotation=45)
+plt.ylabel('Weight')
+plt.xlabel('Attribute')
+plt.title('Bar plot of weights')
+plt.show()

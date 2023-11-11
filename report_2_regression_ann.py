@@ -25,12 +25,12 @@ N, M = X.shape
 # Normalize data
 X = stats.zscore(X)
 
-possible_hs = [1, 3, 5, 10]
-n_replicates = 3
-max_iter = 10000
+possible_hs = [1, 2, 3]
+n_replicates = 1
+max_iter = 2000
 
 # K-fold crossvalidation
-K = 10
+K = 5
 CV = model_selection.KFold(K, shuffle=True)
 
 
@@ -50,9 +50,6 @@ for n_hidden_units in possible_hs:
                         torch.nn.Linear(n_hidden_units, 1), # n_hidden_units to 1 output neuron
                         )
     loss_fn = torch.nn.MSELoss() # notice how this is now a mean-squared-error loss
-
-    # Setup figure for display of learning curves and error rates in fold
-    summaries, summaries_axes = plt.subplots(1,2, figsize=(10,5))
 
     print(f'Training model of type:\n\n{str(model())}\n')
     errors = [] # make a list for storing generalizaition error in each loop
@@ -82,23 +79,11 @@ for n_hidden_units in possible_hs:
         # Determine errors and errors
         se = (y_test_est.float()-y_test.float())**2 # squared error
         mse = (sum(se).type(torch.float)/len(y_test)).data.numpy() #mean
-        errors.append(mse) # store error rate for current CV fold 
+        errors.append(float(mse)) # store error rate for current CV fold 
         print(errors)
 
         # Display the learning curve for the best net in the current fold
         learning_curves.append(learning_curve)
-        h, = summaries_axes[0].plot(learning_curve, color=color_list[k])
-        h.set_label('CV fold {0}'.format(k+1))
-        summaries_axes[0].set_xlabel('Iterations')
-        summaries_axes[0].set_xlim((0, max_iter))
-        summaries_axes[0].set_ylabel('Loss')
-        summaries_axes[0].set_title('Learning curves for hidden units = {0}'.format(n_hidden_units))
-    # Display the MSE across folds
-    summaries_axes[1].bar(np.arange(1, K+1), np.squeeze(np.array(errors)),  color=color_list)
-    summaries_axes[1].set_xlabel('Fold')
-    summaries_axes[1].set_xticks(np.arange(1, K+1))
-    summaries_axes[1].set_ylabel('MSE')
-    summaries_axes[1].set_title('Test mean-squared-error')
 
     best_of_fold_idx = np.argmin(errors)
     best_performance_error.append(errors[best_of_fold_idx])
@@ -120,9 +105,3 @@ summaries_axes[1].set_xlabel('Hidden units')
 summaries_axes[1].set_xticks(np.arange(1, len(possible_hs)+1), possible_hs)
 summaries_axes[1].set_ylabel('MSE')
 summaries_axes[1].set_title('Test mean-squared-error')
-
-for i in range(len(possible_hs)):
-    weights = [best_performance_net[i][j].weight.data.numpy().T for j in [0,2]]
-    biases = [best_performance_net[i][j].bias.data.numpy() for j in [0,2]]
-    tf =  [str(best_performance_net[i][j]) for j in [1,2]]
-    draw_neural_net(weights, biases, tf, attribute_names=list(attributeNames))

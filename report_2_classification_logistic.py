@@ -1,4 +1,3 @@
-# exercise 8.1.2
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -79,14 +78,6 @@ plt.xlabel('Regularization strength, $\log_{10}(\lambda)$')
 plt.ylabel('Error rate (%)')
 plt.title('Classification error')
 plt.legend(['Training error','Test error','Test minimum'],loc='upper right')
-plt.grid()
-plt.show()    
-
-plt.figure(figsize=(8,8))
-plt.semilogx(lambda_interval, coefficient_norm,'k')
-plt.ylabel('L2 Norm')
-plt.xlabel('Regularization strength, $\log_{10}(\lambda)$')
-plt.title('Parameter vector L2 norm')
 plt.grid()
 plt.show()    
 
